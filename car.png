@@ -1,0 +1,2 @@
+const carImage = new Image();
+carImage.src = 'car.png'; // Ensure this path is correct
