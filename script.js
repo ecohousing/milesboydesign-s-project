@@ -22,14 +22,11 @@ const maxSpeed = 300;
 
 const keyState = { left: false, right: false, up: false, down: false };
 
-const carImage = new Image();
-carImage.src = 'car.png';
-
 for (let i = 0; i < 500; i++) {
   segments.push({
     index: i,
     curve: Math.sin(i / 30) * 2,
-    y: Math.sin(i / 60) * 1500
+    y: Math.sin(i / 60) * 500
   });
 }
 
@@ -127,12 +124,12 @@ function render() {
   const carHeight = 100;
   const carX = canvas.width / 2 - carWidth / 2 + playerX;
   const carY = canvas.height - carHeight - 20;
-  ctx.drawImage(carImage, carX, carY, carWidth, carHeight);
+
+  ctx.fillStyle = 'red';
+  ctx.fillRect(carX, carY, carWidth, carHeight);
 
   position += speed;
   requestAnimationFrame(render);
 }
 
-carImage.onload = () => {
-  render();
-};
+render();
