@@ -26,6 +26,10 @@ const keyState = {
   down: false
 };
 
+// Load car image
+const carImage = new Image();
+carImage.src = 'car.png'; // Ensure this path is correct
+
 // Build the road
 for (let i = 0; i < 500; i++) {
   segments.push({
@@ -96,18 +100,21 @@ function render() {
     ctx.fill();
   }
 
-  // Draw car (as a triangle for now)
-  ctx.fillStyle = 'red';
-  ctx.beginPath();
-  ctx.moveTo(canvas.width / 2, canvas.height - 50);
-  ctx.lineTo(canvas.width / 2 - 25, canvas.height);
-  ctx.lineTo(canvas.width / 2 + 25, canvas.height);
-  ctx.closePath();
-  ctx.fill();
+  // Draw car image
+  const carWidth = 50;
+  const carHeight = 100;
+  const carX = canvas.width / 2 - carWidth / 2 + playerX;
+  const carY = canvas.height - carHeight - 20;
+
+  ctx.drawImage(carImage, carX, carY, carWidth, carHeight);
 
   position += speed;
 
   requestAnimationFrame(render);
 }
 
-render();
+// Start rendering after the car image has loaded
+carImage.onload = () => {
+  render();
+};
+
