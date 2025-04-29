@@ -1,3 +1,4 @@
+// script.js
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -21,9 +22,8 @@ const maxSpeed = 300;
 
 const keyState = { left: false, right: false, up: false, down: false };
 
-// Load car image
 const carImage = new Image();
-carImage.src = 'car.png'; // make sure you have a 'car.png'
+carImage.src = 'car.png';
 
 for (let i = 0; i < 500; i++) {
   segments.push({
@@ -67,11 +67,9 @@ function drawTree(x, y, scale) {
 }
 
 function render() {
-  // Sky
   ctx.fillStyle = '#87ceeb';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Player input
   if (keyState.left) playerDX -= 0.2;
   if (keyState.right) playerDX += 0.2;
   if (keyState.up && speed < maxSpeed) speed += 5;
@@ -101,7 +99,6 @@ function render() {
     const p1 = project(segment.p1, playerX, 1500, playerZ);
     const p2 = project(segment.p2, playerX, 1500, playerZ);
 
-    // Jungle ground
     ctx.fillStyle = '#228B22';
     ctx.beginPath();
     ctx.moveTo(0, p1.y);
@@ -111,7 +108,6 @@ function render() {
     ctx.closePath();
     ctx.fill();
 
-    // Road
     ctx.fillStyle = (Math.floor(segment.index / rumbleLength) % 2 === 0) ? '#666' : '#555';
     ctx.beginPath();
     ctx.moveTo(p1.x - p1.w, p1.y);
@@ -121,14 +117,12 @@ function render() {
     ctx.closePath();
     ctx.fill();
 
-    // Trees
     if (n % 10 === 0) {
       drawTree(p1.x - p1.w - 40, p1.y - 20, 1);
       drawTree(p1.x + p1.w + 40, p1.y - 20, 1);
     }
   }
 
-  // Car
   const carWidth = 50;
   const carHeight = 100;
   const carX = canvas.width / 2 - carWidth / 2 + playerX;
@@ -136,11 +130,9 @@ function render() {
   ctx.drawImage(carImage, carX, carY, carWidth, carHeight);
 
   position += speed;
-
   requestAnimationFrame(render);
 }
 
 carImage.onload = () => {
   render();
 };
-
