@@ -11,27 +11,43 @@ const cameraHeight = 1000;
 const drawDistance = 300;
 const playerZ = cameraHeight * 1.5;
 const fieldOfView = 100;
-const roadSegments = [];
+const segments = [];
 
 let position = 0;
-let speed = 200;
+let speed = 150;
 let playerX = 0;
+let playerDX = 0;
+const maxSpeed = 300;
 
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'ArrowLeft') playerX -= 5;
-  if (e.key === 'ArrowRight') playerX += 5;
-  if (e.key === 'ArrowUp') speed += 10;
-  if (e.key === 'ArrowDown') speed -= 10;
-});
+const keyState = {
+  left: false,
+  right: false,
+  up: false,
+  down: false
+};
 
-// Build road
+// Build the road
 for (let i = 0; i < 500; i++) {
-  roadSegments.push({
+  segments.push({
     index: i,
     curve: Math.sin(i / 30) * 2,
     y: Math.sin(i / 60) * 1500
   });
 }
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowLeft') keyState.left = true;
+  if (e.key === 'ArrowRight') keyState.right = true;
+  if (e.key === 'ArrowUp') keyState.up = true;
+  if (e.key === 'ArrowDown') keyState.down = true;
+});
+
+document.addEventListener('keyup', (e) => {
+  if (e.key === 'ArrowLeft') keyState.left = false;
+  if (e.key === 'ArrowRight') keyState.right = false;
+  if (e.key === 'ArrowUp') keyState.up = false;
+  if (e.key === 'ArrowDown') keyState.down = false;
+});
 
 function project(p, cameraX, cameraY, cameraZ) {
   const dz = p.world.z - cameraZ;
@@ -46,17 +62,26 @@ function project(p, cameraX, cameraY, cameraZ) {
 function render() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  // Player input
+  if (keyState.left) playerDX -= 0.2;
+  if (keyState.right) playerDX += 0.2;
+  if (keyState.up && speed < maxSpeed) speed += 5;
+  if (keyState.down && speed > 0) speed -= 5;
+
+  playerX += playerDX;
+  playerDX *= 0.9; // friction
+
   let baseSegment = Math.floor(position / segmentLength);
   let offsetZ = position % segmentLength;
   let x = 0, dx = 0;
 
   for (let n = 0; n < drawDistance; n++) {
-    const segment = roadSegments[(baseSegment + n) % roadSegments.length];
+    const segment = segments[(baseSegment + n) % segments.length];
     segment.p1 = { world: { x: x, y: segment.y, z: (baseSegment + n) * segmentLength - offsetZ }};
     x += dx;
     dx += segment.curve;
 
-    segment.p2 = { world: { x: x + dx, y: roadSegments[(baseSegment + n + 1) % roadSegments.length].y, z: (baseSegment + n + 1) * segmentLength - offsetZ }};
+    segment.p2 = { world: { x: x + dx, y: segments[(baseSegment + n + 1) % segments.length].y, z: (baseSegment + n + 1) * segmentLength - offsetZ }};
 
     const p1 = project(segment.p1, playerX, 1500, playerZ);
     const p2 = project(segment.p2, playerX, 1500, playerZ);
@@ -70,6 +95,15 @@ function render() {
     ctx.closePath();
     ctx.fill();
   }
+
+  // Draw car (as a triangle for now)
+  ctx.fillStyle = 'red';
+  ctx.beginPath();
+  ctx.moveTo(canvas.width / 2, canvas.height - 50);
+  ctx.lineTo(canvas.width / 2 - 25, canvas.height);
+  ctx.lineTo(canvas.width / 2 + 25, canvas.height);
+  ctx.closePath();
+  ctx.fill();
 
   position += speed;
 
